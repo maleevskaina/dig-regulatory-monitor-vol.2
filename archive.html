@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archive — Digital Regulatory Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F7F6F3; --surface: #FFFFFF; --border: #E5E2DB; --border-strong: #C8C4BC;
+      --text-primary: #1A1A1A; --text-secondary: #5C5C5C; --text-muted: #8E8E8E;
+      --accent: #1B3A6B; --accent-light: #EAF0FA; --red: #C0392B; --red-light: #FDECEA;
+      --competition: #1B6B3A; --competition-bg: #EAF5EE;
+      --privacy: #5B3A8F; --privacy-bg: #F3EEFB;
+      --dma: #0B5394; --dma-bg: #E8F0FB;
+      --ai: #B45309; --ai-bg: #FEF3C7;
+      --fintech: #0E7490; --fintech-bg: #E0F7FA;
+      --ip: #7C3D12; --ip-bg: #FEF0E0;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-primary); font-size: 14px; line-height: 1.6; min-height: 100vh; }
+
+    /* HEADER */
+    .header { background: var(--accent); color: #fff; padding: 0 24px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+    .header-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 16px; }
+    .header-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .header-logo { width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .header-title { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; }
+    .header-subtitle { font-size: 11px; opacity: 0.65; font-weight: 400; display: none; }
+    @media(min-width:600px){ .header-subtitle { display: block; } }
+    .header-meta { display: flex; align-items: center; gap: 16px; font-size: 12px; opacity: 0.75; }
+    .header-nav-link { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 13px; padding: 4px 10px; border-radius: 4px; transition: background 0.15s, color 0.15s; white-space: nowrap; }
+    .header-nav-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .header-nav-link.active { background: rgba(255,255,255,0.18); color: #fff; }
+
+    /* BREADCRUMB */
+    .breadcrumb { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 20px; font-size: 12px; color: var(--text-muted); }
+    .breadcrumb-inner { max-width: 1280px; margin: 0 auto; display: flex; align-items: center; gap: 6px; }
+    .breadcrumb a { color: var(--accent); text-decoration: none; }
+    .breadcrumb a:hover { text-decoration: underline; }
+
+    /* MAIN */
+    .page-wrap { max-width: 1280px; margin: 0 auto; padding: 24px 20px; }
+
+    /* FILTERS */
+    .filters-bar { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .filters-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .filters-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); min-width: 64px; }
+    .filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border); background: transparent; font-size: 12px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; font-family: inherit; white-space: nowrap; }
+    .filter-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+    .filter-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .filter-btn[data-topic="Competition"].active { background: var(--competition); border-color: var(--competition); }
+    .filter-btn[data-topic="Privacy"].active { background: var(--privacy); border-color: var(--privacy); }
+    .filter-btn[data-topic="DMA/DSA"].active { background: var(--dma); border-color: var(--dma); }
+    .filter-btn[data-topic="AI Regulation"].active { background: var(--ai); border-color: var(--ai); }
+    .filter-btn[data-topic="Fintech"].active { background: var(--fintech); border-color: var(--fintech); }
+    .filter-btn[data-topic="IP"].active { background: var(--ip); border-color: var(--ip); }
+
+    /* SEARCH */
+    .search-bar { position: relative; }
+    .search-input { width: 100%; padding: 9px 14px 9px 36px; border: 1px solid var(--border); border-radius: 8px; font-size: 13px; font-family: inherit; background: var(--surface); color: var(--text-primary); outline: none; transition: border-color 0.15s; }
+    .search-input:focus { border-color: var(--accent); }
+    .search-icon { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; pointer-events: none; }
+
+    /* DATE RANGE */
+    .date-filter-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .date-select { padding: 5px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 12px; font-family: inherit; background: var(--surface); color: var(--text-primary); cursor: pointer; outline: none; }
+    .date-select:focus { border-color: var(--accent); }
+
+    /* SECTION HEADER */
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border-strong); }
+    .section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 20px; color: var(--text-primary); }
+    .section-count { font-size: 12px; color: var(--text-muted); background: var(--bg); border: 1px solid var(--border); padding: 3px 10px; border-radius: 20px; }
+
+    /* ARTICLE CARDS */
+    .articles-grid { display: flex; flex-direction: column; gap: 12px; }
+    .article-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; transition: box-shadow 0.15s, border-color 0.15s; position: relative; overflow: hidden; }
+    .article-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--border-strong); border-radius: 10px 0 0 10px; }
+    .article-card[data-primary-topic="Competition"]::before { background: var(--competition); }
+    .article-card[data-primary-topic="Privacy"]::before { background: var(--privacy); }
+    .article-card[data-primary-topic="DMA/DSA"]::before { background: var(--dma); }
+    .article-card[data-primary-topic="AI Regulation"]::before { background: var(--ai); }
+    .article-card[data-primary-topic="Fintech"]::before { background: var(--fintech); }
+    .article-card[data-primary-topic="IP"]::before { background: var(--ip); }
+    .article-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); border-color: var(--border-strong); }
+    .article-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+    .article-badges { display: flex; flex-wrap: wrap; gap: 5px; flex: 1; }
+    .badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; line-height: 1.6; white-space: nowrap; }
+    .article-date { font-size: 12px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; padding-top: 2px; }
+    .article-title { font-size: 15px; font-weight: 600; color: var(--text-primary); line-height: 1.4; margin-bottom: 6px; letter-spacing: -0.01em; }
+    .article-title a { color: inherit; text-decoration: none; }
+    .article-title a:hover { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    .article-excerpt { font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 10px; }
+    .article-footer { display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: var(--text-muted); }
+    .article-source { font-weight: 500; color: var(--text-secondary); }
+    .article-source a { color: inherit; text-decoration: none; }
+    .article-source a:hover { text-decoration: underline; }
+    .article-read-more { color: var(--accent); text-decoration: none; font-weight: 500; display: flex; align-items: center; gap: 3px; }
+    .article-read-more:hover { text-decoration: underline; }
+
+    /* MONTH DIVIDER */
+    .month-divider { font-size: 13px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.04em; text-transform: uppercase; padding: 6px 0; margin-top: 16px; margin-bottom: 4px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+    .month-divider-count { font-weight: 400; font-size: 12px; }
+
+    /* EMPTY */
+    .empty-state { background: var(--surface); border: 1px dashed var(--border-strong); border-radius: 10px; padding: 48px 24px; text-align: center; color: var(--text-muted); }
+    .empty-state-icon { font-size: 32px; margin-bottom: 12px; }
+    .empty-state-title { font-size: 15px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+
+    /* LOADING */
+    .loading-state { display: flex; align-items: center; justify-content: center; padding: 64px 24px; gap: 12px; color: var(--text-muted); }
+    .spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ERROR */
+    .error-banner { background: var(--red-light); border: 1px solid #F5C6C6; border-radius: 8px; padding: 14px 16px; color: var(--red); font-size: 13px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+
+    /* PAGINATION */
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 24px; flex-wrap: wrap; }
+    .page-btn { padding: 7px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); font-size: 13px; font-family: inherit; cursor: pointer; color: var(--text-secondary); transition: all 0.15s; }
+    .page-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .page-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* FOOTER */
+    .footer { margin-top: 40px; padding: 20px 0; border-top: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; font-size: 12px; color: var(--text-muted); }
+    .footer a { color: var(--text-muted); text-decoration: underline; }
+
+    @media(max-width:640px) { .page-wrap { padding: 16px 12px; } .article-card { padding: 14px 14px; } }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-logo">⚖️</div>
+      <div>
+        <div class="header-title">Digital Regulatory Monitor</div>
+        <div class="header-subtitle">Prosus &amp; Naspers Portfolio — Regulatory Intelligence</div>
+      </div>
+    </div>
+    <div class="header-meta">
+      <a href="index.html" class="header-nav-link">This Week</a>
+      <a href="archive.html" class="header-nav-link active">Archive</a>
+    </div>
+  </div>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <div class="breadcrumb-inner">
+    <a href="index.html">This Week</a>
+    <span>›</span>
+    <span>Archive</span>
+  </div>
+</div>
+
+<main class="page-wrap">
+
+  <!-- SEARCH -->
+  <div style="margin-bottom:16px;">
+    <div class="search-bar">
+      <span class="search-icon">🔍</span>
+      <input type="text" class="search-input" id="search-input" placeholder="Search articles by keyword, source, or topic…" autocomplete="off">
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters-bar">
+    <div class="filters-row">
+      <span class="filters-label">Topic</span>
+      <button class="filter-btn active" data-topic="All">All Topics</button>
+      <button class="filter-btn" data-topic="Competition">Competition</button>
+      <button class="filter-btn" data-topic="Privacy">Privacy &amp; Data</button>
+      <button class="filter-btn" data-topic="DMA/DSA">DMA / DSA</button>
+      <button class="filter-btn" data-topic="AI Regulation">AI Regulation</button>
+      <button class="filter-btn" data-topic="Fintech">Fintech</button>
+      <button class="filter-btn" data-topic="IP">IP</button>
+    </div>
+    <div class="filters-row">
+      <span class="filters-label">Region</span>
+      <button class="filter-btn active" data-juris="All">All Regions</button>
+      <button class="filter-btn" data-juris="EU">🇪🇺 EU</button>
+      <button class="filter-btn" data-juris="UK">🇬🇧 UK</button>
+      <button class="filter-btn" data-juris="Brazil">🇧🇷 Brazil</button>
+      <button class="filter-btn" data-juris="India">🇮🇳 India</button>
+      <button class="filter-btn" data-juris="South Africa">🇿🇦 South Africa</button>
+      <button class="filter-btn" data-juris="US">🇺🇸 US</button>
+    </div>
+    <div class="date-filter-row">
+      <span class="filters-label">Time Range</span>
+      <select class="date-select" id="date-range">
+        <option value="30">Last 30 days</option>
+        <option value="60">Last 60 days</option>
+        <option value="90">Last 90 days</option>
+        <option value="all" selected>All time</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-banner" id="error-banner" style="display:none;">
+    ⚠️ <span id="error-message"></span>
+  </div>
+
+  <!-- SECTION HEADER -->
+  <div class="section-header">
+    <h1 class="section-title">Archive</h1>
+    <span class="section-count" id="article-count">— items</span>
+  </div>
+
+  <!-- ARTICLES -->
+  <div class="articles-grid" id="articles-grid">
+    <div class="loading-state"><div class="spinner"></div>Loading archive…</div>
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="pagination" id="pagination"></div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <span>Digital Regulatory Monitor · Prosus Legal &amp; Regulatory Team</span>
+    <span><a href="index.html">← Back to this week's briefing</a></span>
+  </footer>
+</main>
+
+<script>
+const DATA_URL = 'data/articles.json';
+const DAYS_CUTOFF = 7;
+const PAGE_SIZE = 20;
+
+let allArticles = [];
+let filteredArticles = [];
+let currentPage = 1;
+let activeTopicFilter = 'All';
+let activeJurisFilter = 'All';
+let activeSearch = '';
+let activeDateRange = 'all';
+
+function isOlderThanDays(isoDate, days) {
+  const now = new Date();
+  const then = new Date(isoDate);
+  return (now - then) > days * 86400000;
+}
+
+function withinRange(isoDate, rangeVal) {
+  if (rangeVal === 'all') return true;
+  const days = parseInt(rangeVal, 10);
+  const now = new Date();
+  const then = new Date(isoDate);
+  return (now - then) <= days * 86400000;
+}
+
+function formatDate(isoDate) {
+  const d = new Date(isoDate);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function formatMonthYear(isoDate) {
+  const d = new Date(isoDate);
+  return d.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+}
+
+function getTopicStyle(topic) {
+  const map = {
+    'Competition': 'background:#EAF5EE;color:#1B6B3A',
+    'Privacy': 'background:#F3EEFB;color:#5B3A8F',
+    'DMA/DSA': 'background:#E8F0FB;color:#0B5394',
+    'AI Regulation': 'background:#FEF3C7;color:#B45309',
+    'Fintech': 'background:#E0F7FA;color:#0E7490',
+    'IP': 'background:#FEF0E0;color:#7C3D12'
+  };
+  return map[topic] || 'background:#F0F0F0;color:#5C5C5C';
+}
+
+function getJurisStyle(j) {
+  const map = {
+    'EU': 'background:#E8EDFF;color:#003399',
+    'UK': 'background:#FDEAEA;color:#C8102E',
+    'Brazil': 'background:#E8F5EE;color:#009C3B',
+    'India': 'background:#FFF5E8;color:#B45309',
+    'South Africa': 'background:#E8F7F2;color:#007A4D',
+    'US': 'background:#FDEAEA;color:#B22234'
+  };
+  return map[j] || 'background:#F0F0F0;color:#5C5C5C';
+}
+
+function flagFor(j) {
+  const flags = { EU:'🇪🇺', UK:'🇬🇧', Brazil:'🇧🇷', India:'🇮🇳', 'South Africa':'🇿🇦', US:'🇺🇸' };
+  return flags[j] || '';
+}
+
+function highlight(text, query) {
+  if (!query) return text;
+  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return text.replace(new RegExp('(' + escaped + ')', 'gi'), '<mark style="background:#FEF3C7;border-radius:2px;padding:0 1px;">$1</mark>');
+}
+
+function renderCards(articles) {
+  const grid = document.getElementById('articles-grid');
+  const countEl = document.getElementById('article-count');
+
+  if (articles.length === 0) {
+    countEl.textContent = '0 items';
+    grid.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">No articles match your search</div><p>Try adjusting the filters or search query above.</p></div>`;
+    document.getElementById('pagination').innerHTML = '';
+    return;
+  }
+
+  const totalPages = Math.ceil(articles.length / PAGE_SIZE);
+  currentPage = Math.min(currentPage, totalPages);
+  const page = articles.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  countEl.textContent = articles.length + ' item' + (articles.length !== 1 ? 's' : '');
+
+  // Group by month
+  let lastMonth = null;
+  const monthCounts = {};
+  articles.forEach(a => {
+    const m = formatMonthYear(a.published_at);
+    monthCounts[m] = (monthCounts[m] || 0) + 1;
+  });
+
+  let html = '';
+  page.forEach(a => {
+    const primaryTopic = a.topics[0] || '';
+    const month = formatMonthYear(a.published_at);
+    if (month !== lastMonth) {
+      html += `<div class="month-divider">${month} <span class="month-divider-count">(${monthCounts[month]} items)</span></div>`;
+      lastMonth = month;
+    }
+    const topicBadges = a.topics.map(t => `<span class="badge" style="${getTopicStyle(t)}">${t}</span>`).join('');
+    const jurisBadges = a.jurisdictions.map(j => `<span class="badge" style="${getJurisStyle(j)}">${flagFor(j)} ${j}</span>`).join('');
+    const title = highlight(a.title, activeSearch);
+    const excerpt = highlight(a.excerpt, activeSearch);
+    html += `
+    <article class="article-card" data-primary-topic="${primaryTopic}">
+      <div class="article-card-top">
+        <div class="article-badges">${topicBadges}${jurisBadges}</div>
+        <div class="article-date">${formatDate(a.published_at)}</div>
+      </div>
+      <div class="article-title"><a href="${a.url}" target="_blank" rel="noopener noreferrer">${title}</a></div>
+      <div class="article-excerpt">${excerpt}</div>
+      <div class="article-footer">
+        <span class="article-source"><a href="${a.source_url}" target="_blank" rel="noopener noreferrer">${a.source}</a></span>
+        <a href="${a.url}" target="_blank" rel="noopener noreferrer" class="article-read-more">Read full article →</a>
+      </div>
+    </article>`;
+  });
+
+  grid.innerHTML = html;
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const pag = document.getElementById('pagination');
+  if (totalPages <= 1) { pag.innerHTML = ''; return; }
+  let html = `<button class="page-btn" onclick="goPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>← Prev</button>`;
+  for (let i = 1; i <= totalPages; i++) {
+    if (i === 1 || i === totalPages || Math.abs(i - currentPage) <= 2) {
+      html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`;
+    } else if (Math.abs(i - currentPage) === 3) {
+      html += `<span style="color:var(--text-muted);padding:0 4px">…</span>`;
+    }
+  }
+  html += `<button class="page-btn" onclick="goPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
+  pag.innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  applyFilters();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.goPage = goPage;
+
+function applyFilters() {
+  let filtered = allArticles.filter(a => isOlderThanDays(a.published_at, DAYS_CUTOFF));
+
+  if (activeDateRange !== 'all') {
+    filtered = filtered.filter(a => withinRange(a.published_at, activeDateRange));
+  }
+  if (activeTopicFilter !== 'All') {
+    filtered = filtered.filter(a => a.topics.includes(activeTopicFilter));
+  }
+  if (activeJurisFilter !== 'All') {
+    filtered = filtered.filter(a => a.jurisdictions.includes(activeJurisFilter));
+  }
+  if (activeSearch.trim()) {
+    const q = activeSearch.toLowerCase();
+    filtered = filtered.filter(a =>
+      a.title.toLowerCase().includes(q) ||
+      a.excerpt.toLowerCase().includes(q) ||
+      a.source.toLowerCase().includes(q) ||
+      a.topics.some(t => t.toLowerCase().includes(q)) ||
+      a.jurisdictions.some(j => j.toLowerCase().includes(q))
+    );
+  }
+
+  filtered.sort((a, b) => new Date(b.published_at) - new Date(a.published_at));
+  filteredArticles = filtered;
+  renderCards(filtered);
+}
+
+async function loadData() {
+  try {
+    const res = await fetch(DATA_URL + '?v=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    allArticles = data.articles || [];
+    applyFilters();
+  } catch (err) {
+    document.getElementById('articles-grid').innerHTML = '';
+    const banner = document.getElementById('error-banner');
+    banner.style.display = 'flex';
+    document.getElementById('error-message').textContent = 'Could not load data. Error: ' + err.message;
+  }
+}
+
+// Filter buttons
+document.querySelectorAll('.filter-btn[data-topic]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn[data-topic]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeTopicFilter = btn.dataset.topic;
+    currentPage = 1;
+    applyFilters();
+  });
+});
+document.querySelectorAll('.filter-btn[data-juris]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn[data-juris]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeJurisFilter = btn.dataset.juris;
+    currentPage = 1;
+    applyFilters();
+  });
+});
+document.getElementById('date-range').addEventListener('change', e => {
+  activeDateRange = e.target.value;
+  currentPage = 1;
+  applyFilters();
+});
+
+let searchTimer;
+document.getElementById('search-input').addEventListener('input', e => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    activeSearch = e.target.value;
+    currentPage = 1;
+    applyFilters();
+  }, 300);
+});
+
+loadData();
+</script>
+</body>
+</html>
